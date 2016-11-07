@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Speak",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "Intuitive, fast TTS Speaker",
+    "description": "The description of the application"
+  }
+}

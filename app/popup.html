@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <!-- build:css styles/popup-vendor.css -->
+  <!-- bower:css -->
+  <!-- endbower -->
+  <!-- endbuild -->
+  <!-- build:css styles/main.css -->
+  <link href="styles/main.css" rel="stylesheet">
+  <!-- endbuild -->
+</head>
+
+<body>
+  <div class="speakingrate">
+    <br>
+    <label>
+								<span id="lang_rate" class="locale">Speaking rate</span>
+								<input id="irate" type="range" min="0.1" max="2" value="1" step="0.1">
+    </label>
+    <br>
+    <label>
+								 <span id="iwords">0</span> <span id="lang_wpm" class="locale">words per minute</span>
+    </label>
+
+  </div>
+  <!-- build:js scripts/popup-vendor.js -->
+  <!-- bower:js -->
+  <!-- endbower -->
+  <!-- endbuild -->
+
+  <!-- build:js scripts/popup.js -->
+  <script src="scripts/popup.js"></script>
+  <!-- endbuild -->
+</body>
+
+</html>
