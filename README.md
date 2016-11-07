@@ -9,7 +9,7 @@
 git clone https://github.com/wesamco/speak.git
 
 # go to the project directory
-cd chrome-extension
+cd speak
 
 # install npm packages 
 npm install
@@ -44,7 +44,7 @@ If you would like to have a continuous transforming by babel you can use `watch`
 
 ### Watch
 
-Watch task helps you reduce your efforts during development extensions. If the task detects your changes of source files, re-compile your sources automatically or Livereload([chromereload.js](https://github.com/yeoman/generator-chrome-extension/blob/master/app/templates/scripts/chromereload.js)) reloads your extension. If you would like to know more about Live-reload and preview of Yeoman? Please see [Getting started with Yeoman and generator-webapp](http://youtu.be/zBt2g9ekiug?t=3m51s) for your understanding.
+Watch task helps you reduce your efforts during development extensions. If the task detects your changes of source files, re-compile your sources automatically or Livereload([chromereload.js](https://github.com/wesamco/speak/blob/master/app/scripts.babel/chromereload.js)) reloads your extension. 
 
 ```bash
 gulp watch
