@@ -70,13 +70,12 @@ function SendSpeak(el) {
     } else {
         text = getOtherText(el);
     }
-    if (text) {
+    if (text && text.indexOf('<') == -1) {
         chrome.runtime.sendMessage({
             method: 'speak',
             text: text
         });
     }
-
 }
 
 var lastElmClicked;
