@@ -1,48 +1,39 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.method == 'getSelection') {
-        var text = getSelectionText();
-        sendResponse({ data: text });
-    } else if (request.method == 'getElementText') {
-        sendResponse(getElementText(lastElmClicked));
-    } else if (request.method == 'showSpeakButton') {
-        ShowButton(lastMUpPosition);
-        //sendResponse(getElementText(lastElmClicked));
-    }
-});
-var lastElmClicked;
-var lastMdownStamp;
-var lastMUpPosition;
-var lastSelection;
+var prevElmClicked;
+var prevMdownStamp;
+var prevMUpPosition;
+var prevSelection;
 var speakButton;
+var prevSelectedElm;
+window.onload = CreateButtonElement;
 document.addEventListener('mousedown', (e) => {
     e = e || window.event;
-    lastElmClicked = e.target || e.srcElement;
-    lastMdownStamp = new Date();
+    prevElmClicked = e.target || e.srcElement;
+    prevMdownStamp = new Date();
 });
 document.addEventListener('mouseup', (e) => {
     e = e || window.event;
-    lastMUpPosition = {
-        x: e.pageX,
-        y: e.pageY
-    }
-    console.log(JSON.stringify(lastMUpPosition));
     var target = e.target || e.srcElement;
     if (target === speakButton)
         return;
-    lastSelection = getSelectionText();
-    if (lastSelection && lastSelection.length > 0) {
-        SendSpeak(lastSelection, 'selectText');
+    prevMUpPosition = {
+        x: e.pageX + 10,
+        y: e.pageY + 10
+    }
+    prevSelection = getSelectionText().trim();
+    prevSelectedElm = window.getSelection().anchorNode.parentNode;
+    if (prevSelection && prevSelection.length > 0 && target === prevSelectedElm) {
+        SendSpeak(prevSelection, 'selectText');
     } else {
         var now = new Date();
-        if (now - lastMdownStamp < 1500) { // Element clicked
-            if (lastElmClicked === target) {
-                SendSpeak(lastElmClicked, 'click');
+        if (now - prevMdownStamp < 1500) { // Element clicked
+            if (prevElmClicked === target) {
+                SendSpeak(prevElmClicked, 'click');
             }
-        } else if (SpeakableElement(target)) { // if Just clicked and speakable
+        } else { // if Just clicked and speakable
             SendSpeak(target, 'click');
         }
-        lastElmClicked = target;
     }
+    prevElmClicked = target;
 });
 function SendSpeak(el, trigger) {
     var text;
@@ -51,6 +42,7 @@ function SendSpeak(el, trigger) {
     } else {
         text = getElementText(el);
     }
+    text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, ':,(a url),');
     if (text && !ContainsHTML(text)) {
         chrome.runtime.sendMessage({
             method: 'speak',
@@ -58,7 +50,7 @@ function SendSpeak(el, trigger) {
             trigger: trigger
         }, (response) => {
             if (response === 'showSpeakButton') {
-                ShowButton(lastMUpPosition);
+                ShowButton(prevMUpPosition);
             }
         });
     }
@@ -67,16 +59,6 @@ function ContainsHTML(text) {
     var reg = new RegExp(/<[a-zA-Z](.*?[^?])?>/);
     return reg.test(text);
 }
-function SpeakableElement(target) {
-    return target.tagName === 'P'
-        || target.tagName === 'H1' || target.tagName === 'H2' || target.tagName === 'H3' || target.tagName === 'H4' || target.tagName === 'H5'
-        || target.tagName === 'CITE' || target.tagName === 'BLOCKQUOTE'
-        || target.tagName === 'LI' || target.tagName === 'TIME' || target.tagName === 'CODE' || target.tagName === 'STRONG'
-        || (target.tagName === 'EM' && target.innerText.split(' ').length > 1)
-        || target.tagName === 'DIV'
-        || target.tagName === 'SPAN'
-        || target.tagName === 'A';
-}
 function getSelectionText() {
     var text = '';
     if (window.getSelection) {
@@ -84,6 +66,7 @@ function getSelectionText() {
     } else if (document.selection && document.selection.type != 'Control') {
         text = document.selection.createRange().text;
     }
+    text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, ':,(a url),');
     return text;
 }
 function getElementText(el) {
@@ -108,36 +91,26 @@ function ShowButton(x, y) {
         y = x.y;
         x = x.x;
     }
-    if (!speakButton)
-        speakButton = document.getElementById('speak-button');
-    if (!speakButton) {
-        speakButton = document.createElement('Button');
-        speakButton.id = 'speak-button'
-        speakButton.innerHTML = 'Speak';
-        speakButton.onclick = () => {
-            SendSpeak(lastSelection);
-            HideButton();
-        };
-        document.body.appendChild(speakButton);
-    }
-    /*floater.style.left = rect.left + "px";
-    floater.style.top = rect.top + "px";
-    floater.style.position = "absolute";
-    floater.style.float = "none";*/
     speakButton.style = `top:${y}px;left:${x}px;position:absolute;z-index: 9999;float:none`;
 }
 function HideButton() {
-    if (!speakButton)
-        speakButton = document.getElementById('speak-button');
-    if (!speakButton) {
-        speakButton = document.createElement('Button');
-        speakButton.id = 'speak-button'
-        speakButton.innerHTML = 'Speak';
-        speakButton.onclick = () => {
-            SendSpeak(lastSelection);
-            HideButton();
-        };
-        document.body.appendChild(speakButton);
-    }
     speakButton.style = 'visibility: hidden;';
 }
+function CreateButtonElement() {
+    speakButton = document.createElement('Button');
+    speakButton.id = 'speak-button'
+    speakButton.innerHTML = 'Speak';
+    speakButton.onclick = () => {
+        SendSpeak(prevSelection);
+        HideButton();
+    };
+    document.body.appendChild(speakButton);
+}
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.method == 'getSelection') {
+        var text = getSelectionText();
+        sendResponse({ data: text });
+    } else if (request.method == 'getElementText') {
+        sendResponse(getElementText(prevElmClicked));
+    }
+});
