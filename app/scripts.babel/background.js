@@ -18,8 +18,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 break;
             case 'selectText':
                 speak = getSpeakOnSelect();
-                if(!speak)
-                {
+                if (!speak) {
                     sendResponse('showSpeakButton');
                 }
                 break;
@@ -59,8 +58,10 @@ function StartSpeaking(info) {
 function Speak(text) {
     chrome.tts.speak(text,
         {
-            'lang': 'en-US',
             'rate': getRateValue(),
+            'voiceName': getVoice().replace('-',' '),
+            'pitch': calcPitch(),
+            'volume': calcVolume(),
             onEvent: (event) => {
                 console.log('Event ' + event.type + ' at position ' + event.charIndex);
                 if (event.type == 'error') {
@@ -75,6 +76,9 @@ function setRateValue(value) { localStorage.setItem('rateValue', value); }
 function setSpeakOnClick(value) { localStorage.setItem('speakOnClick', value); }
 function setSpeakOnSelect(value) { localStorage.setItem('speakOnSelect', value); }
 function setButtonOnSelect(value) { setSpeakOnSelect(!value); }
+function setVolume(value) { localStorage.setItem('volume', value); }
+function setPitch(value) { localStorage.setItem('pitch', value); }
+function setVoice(value) { localStorage.setItem('voice', value); }
 function getRateValue() {
     return parseFloat(localStorage.getItem('rateValue'));
 }
@@ -85,6 +89,18 @@ function getSpeakOnSelect() {
     return JSON.parse(localStorage.getItem('speakOnSelect'));
 }
 function getButtonOnSelect() { return !getSpeakOnSelect(); }
+function getVolume() {
+    return parseFloat(localStorage.getItem('volume'));
+}
+function getPitch() {
+    return parseFloat(localStorage.getItem('pitch'));
+}
+function getVoice() {
+    return (localStorage.getItem('voice'));
+}
+function calcVolume(value) { return (getVolume() / 4); }
+function calcPitch(value) { return (getPitch() / 4); }
+function getButtonOnSelect() { return !getSpeakOnSelect(); }
 function Init() {
     if (getRateValue() == null || getRateValue() == undefined) {
         setRateValue(1.0);
@@ -94,6 +110,17 @@ function Init() {
     }
     if (getSpeakOnSelect() == null || getSpeakOnSelect() == undefined) {
         setSpeakOnSelect(true);
+    }
+    if (getVolume() == null || getVolume() == undefined) {
+        setVolume(2.0);
+    }
+    if (getPitch() == null || getPitch() == undefined) {
+        setPitch(4.0);
+    }
+    if (getVoice() == null || getVoice() == undefined) {
+        chrome.tts.getVoices((voices) => {
+            setVoice(voices[0].voiceName.replace(' ','-'));
+        });
     }
 }
 chrome.runtime.onInstalled.addListener(details => {

@@ -62,7 +62,13 @@ h5{
   padding: 2px;
   margin: 2px; 
 }
-
+select{
+  margin: 4px;
+  width: 80%;
+  margin-left: 10%;
+  background-color: white;
+  color: black;
+}
 input[type=range] {
   -webkit-appearance: none;
   width: 100%;

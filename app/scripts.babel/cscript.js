@@ -105,6 +105,7 @@ function CreateButtonElement() {
         HideButton();
     };
     document.body.appendChild(speakButton);
+    HideButton();
 }
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.method == 'getSelection') {
