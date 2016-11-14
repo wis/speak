@@ -59,15 +59,21 @@ function Speak(text) {
     chrome.tts.speak(text,
         {
             'rate': getRateValue(),
-            'voiceName': getVoice().replace('-',' '),
+            'voiceName': getVoice().replace('-', ' '),
             'pitch': calcPitch(),
             'volume': calcVolume(),
+            requiredEventTypes: ['word', 'error', 'start', 'end'],
+            desiredEventTypes: ['word', 'error', 'start', 'end'],
             onEvent: (event) => {
                 console.log('Event ' + event.type + ' at position ' + event.charIndex);
                 if (event.type == 'error') {
-                    Speak('Error: ' + event.errorMessage);
+                    console.log('Error: ' + event.errorMessage);
+                } else if (event.type == 'word') {
+                    console.log('word event');
                 }
             }
+        }, () => {
+            console.log('speak callbackk');
         });
 }
 
@@ -102,24 +108,30 @@ function calcVolume(value) { return (getVolume() / 4); }
 function calcPitch(value) { return (getPitch() / 4); }
 function getButtonOnSelect() { return !getSpeakOnSelect(); }
 function Init() {
-    if (getRateValue() == null || getRateValue() == undefined) {
-        setRateValue(1.0);
+    console.log('getRateValue() ' + getRateValue());
+    if (getRateValue() == null || getRateValue() == undefined || isNaN(getRateValue())) {
+        setRateValue('1.0');
     }
+    console.log('getSpeakOnClick() ' + getSpeakOnClick());
     if (getSpeakOnClick() == null || getSpeakOnClick() == undefined) {
         setSpeakOnClick(true);
     }
+    console.log('getSpeakOnSelect() ' + getSpeakOnSelect());
     if (getSpeakOnSelect() == null || getSpeakOnSelect() == undefined) {
         setSpeakOnSelect(true);
     }
-    if (getVolume() == null || getVolume() == undefined) {
-        setVolume(2.0);
+    console.log('getVolume() ' + getVolume());
+    if (getVolume() == null || getVolume() == undefined || isNaN(getVolume())) {
+        setVolume('2.0');
     }
-    if (getPitch() == null || getPitch() == undefined) {
-        setPitch(4.0);
+    console.log('getPitch() ' + getPitch());
+    if (getPitch() == null || getPitch() == undefined || isNaN(getPitch())) {
+        setPitch('4.0');
     }
+    console.log('getVoice() ' + getVoice());
     if (getVoice() == null || getVoice() == undefined) {
         chrome.tts.getVoices((voices) => {
-            setVoice(voices[0].voiceName.replace(' ','-'));
+            setVoice(voices[0].voiceName.replace(' ', '-'));
         });
     }
 }

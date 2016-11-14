@@ -19,10 +19,12 @@ document.addEventListener('mouseup', (e) => {
         x: e.pageX + 10,
         y: e.pageY + 10
     }
-    prevSelection = getSelectionText().trim();
-    prevSelectedElm = window.getSelection().anchorNode.parentNode;
-    if (prevSelection && prevSelection.length > 0 && target === prevSelectedElm) {
-        SendSpeak(prevSelection, 'selectText');
+    prevSelection = getSelectionText();
+    //prevSelectedElm = prevSelectedElm.parentNode;
+    if (prevSelection && prevSelection.length > 0) {
+        if (target === prevSelectedElm) {
+            SendSpeak(prevSelection, 'selectText');
+        }
     } else {
         var now = new Date();
         if (now - prevMdownStamp < 1500) { // Element clicked
@@ -43,7 +45,8 @@ function SendSpeak(el, trigger) {
         text = getElementText(el);
     }
     text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, ':,(a url),');
-    if (text && !ContainsHTML(text)) {
+    text = NormalizeHTML(text);
+    if (text /*&& !ContainsHTML(text)*/) {
         chrome.runtime.sendMessage({
             method: 'speak',
             text: text,
@@ -55,19 +58,25 @@ function SendSpeak(el, trigger) {
         });
     }
 }
-function ContainsHTML(text) {
-    var reg = new RegExp(/<[a-zA-Z](.*?[^?])?>/);
-    return reg.test(text);
+function NormalizeHTML(text) {
+    //<[a-zA-Z](.*?[^?])?>.+<\/[a-zA-Z](.*?[^?])?>
+    var reg1 = new RegExp(/(<[a-zA-Z|-](.*?[^?])?>.+<\/[a-zA-Z|-](.*?[^?])?>)/g);
+    text = text.replace(reg1, '');
+    var reg = new RegExp(/<([a-zA-Z|-](.*?[^?])?)>/g);
+    return text.replace(reg, '$1');
 }
 function getSelectionText() {
     var text = '';
-    if (window.getSelection) {
-        text = window.getSelection().toString();
-    } else if (document.selection && document.selection.type != 'Control') {
-        text = document.selection.createRange().text;
+    var selection = window.getSelection();
+    text = selection.toString();
+    try {
+        prevSelectedElm = selection.anchorNode.parentNode;
+
+    } catch (error) {
+        prevSelectedElm = selection.anchorNode;
     }
     text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, ':,(a url),');
-    return text;
+    return text.trim();
 }
 function getElementText(el) {
     var text;

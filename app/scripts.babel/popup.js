@@ -103,7 +103,7 @@ function getVoice() {
 }
 function Init() {
     if (getRateValue() == null || getRateValue() == undefined) {
-        setRateValue(1.0);
+        setRateValue('1.0');
     }
     if (getSpeakOnClick() == null || getSpeakOnClick() == undefined) {
         setSpeakOnClick(true);
@@ -112,10 +112,10 @@ function Init() {
         setSpeakOnSelect(true);
     }
     if (getVolume() == null || getVolume() == undefined) {
-        setVolume(2.0);
+        setVolume('2.0');
     }
     if (getPitch() == null || getPitch() == undefined) {
-        setPitch(4.0);
+        setPitch('4.0');
     }
     chrome.tts.getVoices((voices) => {
         var voice = getVoice();
@@ -127,7 +127,7 @@ function Init() {
             selectVoice.append($('<option>', {
                 selected : voice === voices[i].voiceName.replace(' ', '-'),
                 value: voices[i].voiceName.replace(' ', '-'),
-                text: `${i} ${voices[i].voiceName} ${voices[i].lang} ${voices[i].gender}`
+                text: `${i+1}\t${voices[i].voiceName.replace('Google','')}\t${voices[i].gender == 'female'  ? '👩♀' : '🚹♂' }`
             }));
         }
     });
