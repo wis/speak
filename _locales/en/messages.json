@@ -1,10 +1,10 @@
 {
   "appName": {
-    "message": "Speak",
+    "message": "Click to Read",
     "description": "The name of the application"
   },
   "appDescription": {
-    "message": "Intuitive, fast TTS Speaker",
+    "message": "Text to speech reader designed for minimal clicks or presses to start reading.",
     "description": "The description of the application"
   }
 }
